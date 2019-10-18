@@ -131,8 +131,7 @@ void TDescant::AddFragment(const std::shared_ptr<const TFragment>& frag, TChanne
       return;
    }
 
-   TDescantHit* hit = new TDescantHit(*frag);
-   fHits.push_back(std::move(hit));
+   fHits.push_back(std::make_shared<TDescantHit>(*frag));
 }
 
 TVector3 TDescant::GetPosition(int DetNbr, double dist)

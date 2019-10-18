@@ -139,11 +139,11 @@ void TGriffin::Copy(TObject& rhs) const
 
    static_cast<TGriffin&>(rhs).fGriffinLowGainHits.resize(fGriffinLowGainHits.size());
 	for(size_t i = 0; i < fGriffinLowGainHits.size(); ++i) {
-		static_cast<TGriffin&>(rhs).fGriffinLowGainHits[i] = new TGriffinHit(*static_cast<TGriffinHit*>(fGriffinLowGainHits[i]));
+		static_cast<TGriffin&>(rhs).fGriffinLowGainHits[i] = std::make_shared<TGriffinHit>(*std::static_pointer_cast<TGriffinHit>(fGriffinLowGainHits[i]));
 	}
    static_cast<TGriffin&>(rhs).fGriffinHighGainHits.resize(fGriffinHighGainHits.size());
 	for(size_t i = 0; i < fGriffinHighGainHits.size(); ++i) {
-		static_cast<TGriffin&>(rhs).fGriffinHighGainHits[i] = new TGriffinHit(*static_cast<TGriffinHit*>(fGriffinHighGainHits[i]));
+		static_cast<TGriffin&>(rhs).fGriffinHighGainHits[i] = std::make_shared<TGriffinHit>(*std::static_pointer_cast<TGriffinHit>(fGriffinHighGainHits[i]));
 	}
 	// not copying addback or suppressed vectors
    static_cast<TGriffin&>(rhs).fGriffinBits          = 0;
@@ -165,30 +165,6 @@ void TGriffin::Copy(TObject& rhs) const
 TGriffin::~TGriffin()
 {
    // Default Destructor
-	for(auto hit : fGriffinLowGainHits) {
-		delete hit;
-	}
-	for(auto hit : fGriffinHighGainHits) {
-		delete hit;
-	}
-	for(auto hit : fAddbackLowGainHits) {
-		delete hit;
-	}
-	for(auto hit : fAddbackHighGainHits) {
-		delete hit;
-	}
-	for(auto hit : fSuppressedLowGainHits) {
-		delete hit;
-	}
-	for(auto hit : fSuppressedHighGainHits) {
-		delete hit;
-	}
-	for(auto hit : fSuppressedAddbackLowGainHits) {
-		delete hit;
-	}
-	for(auto hit : fSuppressedAddbackHighGainHits) {
-		delete hit;
-	}
 }
 
 void TGriffin::Clear(Option_t* opt)
@@ -218,13 +194,13 @@ void TGriffin::Print(Option_t* opt) const
    std::cout<<std::setw(6)<<GetLowGainMultiplicity()<<" Low gain hits"<<std::endl;
 	if(TString(opt).Contains("all", TString::ECaseCompare::kIgnoreCase)) {
 		for(auto hit : fGriffinLowGainHits) {
-			static_cast<TGriffinHit*>(hit)->Print();
+			static_cast<TGriffinHit*>(hit.get())->Print();
 		}
 	}
    std::cout<<std::setw(6)<<GetHighGainMultiplicity()<<" High gain hits"<<std::endl;
 	if(TString(opt).Contains("all", TString::ECaseCompare::kIgnoreCase)) {
 		for(auto hit : fGriffinHighGainHits) {
-			static_cast<TGriffinHit*>(hit)->Print();
+			static_cast<TGriffinHit*>(hit.get())->Print();
 		}
 	}
 
@@ -272,7 +248,7 @@ Short_t TGriffin::GetMultiplicity(const EGainBits& gain_type) const
    return 0;
 }
 
-const std::vector<TDetectorHit*>& TGriffin::GetHitVector(const EGainBits& gain_type) const
+const std::vector<std::shared_ptr<TDetectorHit> >& TGriffin::GetHitVector(const EGainBits& gain_type) const
 {
    switch(gain_type) {
 		case EGainBits::kLowGain:  return fGriffinLowGainHits;
@@ -281,7 +257,7 @@ const std::vector<TDetectorHit*>& TGriffin::GetHitVector(const EGainBits& gain_t
 	return fGriffinLowGainHits;
 }
 
-std::vector<TDetectorHit*>& TGriffin::GetHitVector(const EGainBits& gain_type)
+std::vector<std::shared_ptr<TDetectorHit> >& TGriffin::GetHitVector(const EGainBits& gain_type)
 {
    switch(gain_type) {
 		case EGainBits::kLowGain:  return fGriffinLowGainHits;
@@ -290,7 +266,7 @@ std::vector<TDetectorHit*>& TGriffin::GetHitVector(const EGainBits& gain_type)
 	return fGriffinLowGainHits;
 }
 
-std::vector<TDetectorHit*>& TGriffin::GetAddbackVector(const EGainBits& gain_type)
+std::vector<std::shared_ptr<TDetectorHit> >& TGriffin::GetAddbackVector(const EGainBits& gain_type)
 {
    switch(gain_type) {
 		case EGainBits::kLowGain:  return fAddbackLowGainHits;
@@ -363,7 +339,7 @@ TGriffinHit* TGriffin::GetGriffinHit(const int& i, const EGainBits& gain_type)
       if(!IsCrossTalkSet(gain_type)) {
          FixCrossTalk(gain_type);
       }
-      return static_cast<TGriffinHit*>(GetHitVector(gain_type).at(i));
+      return static_cast<TGriffinHit*>(GetHitVector(gain_type).at(i).get());
    } catch(const std::out_of_range& oor) {
       std::cerr<<ClassName()<<" Hits are out of range: "<<oor.what()<<std::endl;
       if(!gInterpreter) {
@@ -399,9 +375,6 @@ Short_t TGriffin::GetAddbackMultiplicity(const EGainBits& gain_type)
    }
    // if the addback has been reset, clear the addback hits
    if(!IsAddbackSet(gain_type)) {
-		for(auto hit : ab_vec) {
-			delete hit;
-		}
       ab_vec.clear();
       frag_vec.clear();
    }
@@ -426,7 +399,7 @@ TGriffinHit* TGriffin::GetAddbackHighGainHit(const int& i)
 TGriffinHit* TGriffin::GetAddbackHit(const int& i, const EGainBits& gain_type)
 {
    if(i < GetAddbackMultiplicity(gain_type)) {
-      return static_cast<TGriffinHit*>(GetAddbackVector(gain_type)[i]);
+      return static_cast<TGriffinHit*>(GetAddbackVector(gain_type)[i].get());
    }
    std::cerr<<"Addback hits are out of range"<<std::endl;
    throw grsi::exit_exception(1);
@@ -450,13 +423,12 @@ void TGriffin::AddFragment(const std::shared_ptr<const TFragment>& frag, TChanne
    switch(mnemonic->SubSystem()) {
 		case TMnemonic::EMnemonic::kG:
 			{
-				TGriffinHit* geHit = new TGriffinHit(*frag);
 				switch(mnemonic->OutputSensor()) {
 					case TMnemonic::EMnemonic::kA:
-						GetHitVector(EGainBits::kLowGain).push_back(std::move(geHit));
+						GetHitVector(EGainBits::kLowGain).push_back(std::make_shared<TGriffinHit>(*frag));
 						break;
 					case TMnemonic::EMnemonic::kB:
-						GetHitVector(EGainBits::kHighGain).push_back(std::move(geHit));
+						GetHitVector(EGainBits::kHighGain).push_back(std::make_shared<TGriffinHit>(*frag));
 						break;
 					default:
 						break;
@@ -532,9 +504,6 @@ void TGriffin::ResetAddback(const EGainBits& gain_type)
 {
    SetAddback(gain_type, false);
    SetCrossTalk(gain_type, false);
-	for(auto hit : GetAddbackVector(gain_type)) {
-		delete hit;
-	}
 	GetAddbackVector(gain_type).clear();
 	GetAddbackFragVector(gain_type).clear();
 }
@@ -624,14 +593,14 @@ void TGriffin::FixCrossTalk(const EGainBits& gain_type)
 		return;
 	}
 	for(auto& hit : hit_vec) {
-		static_cast<TGriffinHit*>(hit)->ClearEnergy();
+		std::static_pointer_cast<TGriffinHit>(hit)->ClearEnergy();
 	}
 
 	if(TGRSIOptions::AnalysisOptions()->IsCorrectingCrossTalk()) {
 		for(auto& one : hit_vec) {
 			for(auto& two : hit_vec) {
-				one->SetEnergy(TGriffin::CTCorrectedEnergy(static_cast<TGriffinHit*>(one), static_cast<TGriffinHit*>(two)));
-				two->SetEnergy(TGriffin::CTCorrectedEnergy(static_cast<TGriffinHit*>(two), static_cast<TGriffinHit*>(one)));
+				one->SetEnergy(TGriffin::CTCorrectedEnergy(static_cast<TGriffinHit*>(one.get()), static_cast<TGriffinHit*>(two.get())));
+				two->SetEnergy(TGriffin::CTCorrectedEnergy(static_cast<TGriffinHit*>(two.get()), static_cast<TGriffinHit*>(one.get())));
 			}
 		}
 	}
@@ -737,7 +706,7 @@ UShort_t TGriffin::GetNHighGainSuppressedAddbackFrags(const size_t& idx)
 	return GetNSuppressedAddbackFrags(idx, EGainBits::kHighGain);
 }
 
-std::vector<TDetectorHit*>& TGriffin::GetSuppressedVector(const EGainBits& gain_type)
+std::vector<std::shared_ptr<TDetectorHit> >& TGriffin::GetSuppressedVector(const EGainBits& gain_type)
 {
 	switch(gain_type) {
 		case EGainBits::kLowGain:  return fSuppressedLowGainHits;
@@ -746,7 +715,7 @@ std::vector<TDetectorHit*>& TGriffin::GetSuppressedVector(const EGainBits& gain_
 	return fSuppressedLowGainHits;
 }
 
-std::vector<TDetectorHit*>& TGriffin::GetSuppressedAddbackVector(const EGainBits& gain_type)
+std::vector<std::shared_ptr<TDetectorHit> >& TGriffin::GetSuppressedAddbackVector(const EGainBits& gain_type)
 {
 	switch(gain_type) {
 		case EGainBits::kLowGain:  return fSuppressedAddbackLowGainHits;
@@ -770,7 +739,7 @@ TGriffinHit* TGriffin::GetSuppressedHit(const int& i, const EGainBits& gain_type
 		if(!IsCrossTalkSet(gain_type)) {
 			FixCrossTalk(gain_type);
 		}
-		return static_cast<TGriffinHit*>(GetSuppressedVector(gain_type).at(i));
+		return static_cast<TGriffinHit*>(GetSuppressedVector(gain_type).at(i).get());
 	} catch(const std::out_of_range& oor) {
 		std::cerr<<ClassName()<<" Suppressed hits are out of range: "<<oor.what()<<std::endl;
 		if(!gInterpreter) {
@@ -794,9 +763,6 @@ Short_t TGriffin::GetSuppressedMultiplicity(const TBgo* bgo, const EGainBits& ga
 	}
 	// if the suppressed has been reset, clear the suppressed hits
 	if(!IsSuppressed(gain_type)) {
-		for(auto hit : sup_vec) {
-			delete hit;
-		}
 		sup_vec.clear();
 	}
 	if(sup_vec.empty()) {
@@ -819,9 +785,6 @@ void TGriffin::ResetSuppressed(const EGainBits& gain_type)
 {
 	SetSuppressed(gain_type, false);
 	//SetCrossTalk(gain_type, false);
-	for(auto hit : GetSuppressedVector(gain_type)) {
-		delete hit;
-	}
 	GetSuppressedVector(gain_type).clear();
 }
 
@@ -831,7 +794,7 @@ TGriffinHit* TGriffin::GetSuppressedAddbackHit(const int& i, const EGainBits& ga
 		if(!IsCrossTalkSet(gain_type)) {
 			FixCrossTalk(gain_type);
 		}
-		return static_cast<TGriffinHit*>(GetSuppressedAddbackVector(gain_type).at(i));
+		return static_cast<TGriffinHit*>(GetSuppressedAddbackVector(gain_type).at(i).get());
 	} catch(const std::out_of_range& oor) {
 		std::cerr<<ClassName()<<" Suppressed addback hits are out of range: "<<oor.what()<<std::endl;
 		if(!gInterpreter) {
@@ -857,9 +820,6 @@ Short_t TGriffin::GetSuppressedAddbackMultiplicity(const TBgo* bgo, const EGainB
 	}
 	// if the addback has been reset, clear the addback hits
 	if(!IsSuppressedAddbackSet(gain_type)) {
-		for(auto hit : ab_vec) {
-			delete hit;
-		}
 		ab_vec.clear();
 		frag_vec.clear();
 	}
@@ -883,9 +843,6 @@ void TGriffin::ResetSuppressedAddback(const EGainBits& gain_type)
 {
 	SetSuppressedAddback(gain_type, false);
 	//SetCrossTalk(gain_type, false);
-	for(auto hit : GetSuppressedAddbackVector(gain_type)) {
-		delete hit;
-	}
 	GetSuppressedAddbackVector(gain_type).clear();
 	GetSuppressedAddbackFragVector(gain_type).clear();
 }

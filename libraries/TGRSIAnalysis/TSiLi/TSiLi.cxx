@@ -68,8 +68,7 @@ void TSiLi::AddFragment(const std::shared_ptr<const TFragment>& frag, TChannel* 
       return;
    }
 
-   TSiLiHit* hit = new TSiLiHit(*frag); // Waveform fitting happens in ctor now
-   fHits.push_back(std::move(hit));
+   fHits.push_back(std::make_shared<TSiLiHit>(*frag));
 }
 
 // For mapping you may want to us -position.X() to account for looking upstream
@@ -110,7 +109,7 @@ TSiLiHit* TSiLi::GetAddbackHit(const int& i)
    /// Get the ith addback hit. This function calls GetAddbackMultiplicity to check the range of the index.
    /// This automatically calculates all addback hits if they haven't been calculated before.
    if(i < GetAddbackMultiplicity()) {
-      return &fAddbackHits.at(i);
+      return fAddbackHits.at(i).get();
    }
    std::cerr<<"Addback hits are out of range"<<std::endl;
    throw grsi::exit_exception(1);
@@ -278,8 +277,8 @@ void TSiLi::AddCluster(std::vector<unsigned>& cluster,bool ContainsReject)
 	}
 
 	if(cluster.size()>1&&!ContainsReject){
-		TSiLiHit* A=static_cast<TSiLiHit*>(fHits.at(cluster[0]));
-		TSiLiHit* B=static_cast<TSiLiHit*>(fHits.at(cluster[1]));
+		TSiLiHit* A=static_cast<TSiLiHit*>(fHits.at(cluster[0]).get());
+		TSiLiHit* B=static_cast<TSiLiHit*>(fHits.at(cluster[1]).get());
 		int rA=A->GetRing(),rB=B->GetRing();
 		int sA=A->GetSector(),sB=B->GetSector();
 		int rAB=std::abs(rA-rB);
@@ -290,7 +289,7 @@ void TSiLi::AddCluster(std::vector<unsigned>& cluster,bool ContainsReject)
 			//Reject events with missing middle pixel
 			if(rAB+sAB>1)ContainsReject=true;
 		}else{
-			TSiLiHit* C=static_cast<TSiLiHit*>(fHits.at(cluster[2]));
+			TSiLiHit* C=static_cast<TSiLiHit*>(fHits.at(cluster[2]).get());
 			int rC=C->GetRing();
 			int sC=C->GetSector();
 			int rAC=std::abs(rA-rC),rBC=std::abs(rB-rC);
@@ -338,7 +337,7 @@ void TSiLi::AddCluster(std::vector<unsigned>& cluster,bool ContainsReject)
 		// only be done "on the fly" not stored to TSiLi on disk
 		fAddbackHits.emplace_back();
 		for(unsigned int j : cluster) {
-			fAddbackHits[s].SumHit(GetSiLiHit(j));       
+			fAddbackHits[s]->SumHit(GetSiLiHit(j));       
 		}
 	}
 	// Note: I got rid of ordering the cluster first.

@@ -143,11 +143,11 @@ void TS3::BuildPixels()
                   if(SectorPreference()) {
                      TS3Hit* dethit = &fS3SectorHits[j]; // Sector defines all data ring just gives position
                      dethit->SetRingNumber(fS3RingHits[i].GetRing());
-                     fHits.push_back(dethit);
+                     fHits.push_back(std::make_shared<TS3Hit>(*dethit));
                   } else {
                      TS3Hit* dethit = &fS3RingHits[i]; // Ring defines all data sector just gives position (default)
                      dethit->SetSectorNumber(fS3SectorHits[j].GetSector());
-                     fHits.push_back(dethit);
+                     fHits.push_back(std::make_shared<TS3Hit>(*dethit));
                   }
 
                   // Although set to used for MultiHit, continue to check all combinations in this loop.
@@ -217,7 +217,7 @@ void TS3::BuildPixels()
                                  } else {
                                     dethit->SetSectorNumber(fS3SectorHits[k].GetSector());
                                  }
-                                 fHits.push_back(dethit);
+                                 fHits.push_back(std::make_shared<TS3Hit>(*dethit));
                               }
                            } else {
                               // 2 separate hits with shared ring
@@ -225,12 +225,12 @@ void TS3::BuildPixels()
                               // Now we have accepted a good event, build it
                               TS3Hit* dethit = &fS3SectorHits[j]; // Sector now defines all data ring just gives position
                               dethit->SetRingNumber(fS3RingHits[i].GetRing());
-                              fHits.push_back(dethit);
+                              fHits.push_back(std::make_shared<TS3Hit>(*dethit));
 
                               // Now we have accepted a good event, build it
                               TS3Hit* dethitB = &fS3SectorHits[k]; // Sector now defines all data ring just gives position
                               dethitB->SetRingNumber(fS3RingHits[i].GetRing());
-                              fHits.push_back(dethitB);
+                              fHits.push_back(std::make_shared<TS3Hit>(*dethitB));
                            }
 
                            UsedRing[i]   = true;
@@ -296,7 +296,7 @@ void TS3::BuildPixels()
                                  } else {
                                     dethit->SetRingNumber(fS3RingHits[k].GetRing());
                                  }
-                                 fHits.push_back(dethit);
+                                 fHits.push_back(std::make_shared<TS3Hit>(*dethit));
                               }
                            } else {
                               // 2 separate hits with shared sector
@@ -304,12 +304,12 @@ void TS3::BuildPixels()
                               // Now we have accepted a good event, build it
                               TS3Hit* dethit = &fS3RingHits[j]; // Ring defines all data sector just gives position
                               dethit->SetSectorNumber(fS3SectorHits[i].GetSector());
-                              fHits.push_back(dethit);
+                              fHits.push_back(std::make_shared<TS3Hit>(*dethit));
 
                               // Now we have accepted a good event, build it
                               TS3Hit* dethitB = &fS3RingHits[k]; // Ring defines all data sector just gives position
                               dethitB->SetSectorNumber(fS3SectorHits[i].GetSector());
-                              fHits.push_back(dethitB);
+                              fHits.push_back(std::make_shared<TS3Hit>(*dethitB));
                            }
 
                            UsedSector[i] = true;

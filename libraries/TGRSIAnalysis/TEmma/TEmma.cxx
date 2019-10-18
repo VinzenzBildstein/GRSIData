@@ -229,7 +229,7 @@ void TEmma::BuildHits()
         hit->SetTop((hit->GetTop() - fAnodeTrigger));
         hit->SetBottom((hit->GetBottom() - fAnodeTrigger));
         hit->SetAnodeTrigger(fAnodeTrigger);
-        fHits.push_back(std::move(hit));
+        fHits.push_back(std::make_shared<TEmmaHit>(*hit));
       } else {
         fFail = 0;
         if (hit->GetLeft() == 0) fFail++;
@@ -237,7 +237,7 @@ void TEmma::BuildHits()
         if (hit->GetTop() == 0) fFail++;
         if (hit->GetBottom() == 0) fFail++;
         hit->SetFailedFill(fFail);
-        if (fFail != 0) fHits.push_back(std::move(hit));
+        if (fFail != 0) fHits.push_back(std::make_shared<TEmmaHit>(*hit));
       }
     } else {
       return;

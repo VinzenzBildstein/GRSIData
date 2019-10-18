@@ -339,7 +339,7 @@ TCSMHit* TCSM::MakeHit(std::vector<std::pair<TFragment, TGRSIMnemonic>>& hhV,
    return csmHit;
 }
 
-void TCSM::BuilddEE(std::vector<std::vector<TDetectorHit*>>& hitVec, std::vector<TDetectorHit*>& builtHits)
+void TCSM::BuilddEE(std::vector<std::vector<TDetectorHit*>>& hitVec, std::vector<std::shared_ptr<TDetectorHit>>& builtHits)
 {
    std::vector<TDetectorHit*> d1;
    std::vector<TDetectorHit*> d2;
@@ -350,7 +350,7 @@ void TCSM::BuilddEE(std::vector<std::vector<TDetectorHit*>>& hitVec, std::vector
 		auto hit = static_cast<TCSMHit*>(i);
       if(hit->GetDetectorNumber() == 3 || hit->GetDetectorNumber() == 4) { // I am in side detectors
          // I will never have a pair in the side detector, so go ahead and send it through.
-         builtHits.push_back(i);
+         builtHits.push_back(std::make_shared<TCSMHit>(*hit));
       } else if(hit->GetDetectorNumber() == 1) {
          d1.push_back(i);
       } else if(hit->GetDetectorNumber() == 2) {
@@ -375,37 +375,37 @@ void TCSM::BuilddEE(std::vector<std::vector<TDetectorHit*>>& hitVec, std::vector
    MakedEE(d2, e2, builtHits);
 }
 
-void TCSM::MakedEE(std::vector<TDetectorHit*>& DHitVec, std::vector<TDetectorHit*>& EHitVec, std::vector<TDetectorHit*>& BuiltHits)
+void TCSM::MakedEE(std::vector<TDetectorHit*>& DHitVec, std::vector<TDetectorHit*>& EHitVec, std::vector<std::shared_ptr<TDetectorHit>>& BuiltHits)
 {
    if(DHitVec.empty() && EHitVec.empty()) {
       return;
    }
    if(DHitVec.size() == 1 && EHitVec.empty()) {
-      BuiltHits.push_back(DHitVec.at(0));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(DHitVec.at(0))));
    } else if(DHitVec.empty() && EHitVec.size() == 1) {
-      BuiltHits.push_back(EHitVec.at(0));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(EHitVec.at(0))));
    } else if(DHitVec.size() == 1 && EHitVec.size() == 1) {
-      BuiltHits.push_back(CombineHits(DHitVec.at(0), EHitVec.at(0)));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(0), EHitVec.at(0)))));
    } else if(DHitVec.size() == 2 && EHitVec.empty()) {
-      BuiltHits.push_back(DHitVec.at(0));
-      BuiltHits.push_back(DHitVec.at(1));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(DHitVec.at(0))));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(DHitVec.at(1))));
    } else if(DHitVec.empty() && EHitVec.size() == 2) {
-      BuiltHits.push_back(EHitVec.at(0));
-      BuiltHits.push_back(EHitVec.at(1));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(EHitVec.at(0))));
+      BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(EHitVec.at(1))));
    } else if(DHitVec.size() == 2 && EHitVec.size() == 1) {
       double dt1 = static_cast<TCSMHit*>(DHitVec.at(0))->GetDPosition().Theta();
       double dt2 = static_cast<TCSMHit*>(DHitVec.at(1))->GetDPosition().Theta();
       double et  = static_cast<TCSMHit*>(EHitVec.at(0))->GetEPosition().Theta();
 
       if(std::abs(dt1 - et) <= std::abs(dt2 - et)) {
-         BuiltHits.push_back(CombineHits(DHitVec.at(0), EHitVec.at(0)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(0), EHitVec.at(0)))));
          // BuiltHits.back().Print();
-         BuiltHits.push_back(DHitVec.at(1));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(DHitVec.at(1))));
          // BuiltHits.back().Print();
       } else {
-         BuiltHits.push_back(CombineHits(DHitVec.at(1), EHitVec.at(0)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(1), EHitVec.at(0)))));
          // BuiltHits.back().Print();
-         BuiltHits.push_back(DHitVec.at(0));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(DHitVec.at(0))));
          // BuiltHits.back().Print();
       }
    } else if(DHitVec.size() == 1 && EHitVec.size() == 2) {
@@ -414,14 +414,14 @@ void TCSM::MakedEE(std::vector<TDetectorHit*>& DHitVec, std::vector<TDetectorHit
       double et2 = static_cast<TCSMHit*>(EHitVec.at(0))->GetEPosition().Theta();
 
       if(std::abs(dt - et1) <= std::abs(dt - et2)) {
-         BuiltHits.push_back(CombineHits(DHitVec.at(0), EHitVec.at(0)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(0), EHitVec.at(0)))));
          // BuiltHits.back().Print();
-         BuiltHits.push_back(EHitVec.at(1));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(EHitVec.at(1))));
          // BuiltHits.back().Print();
       } else {
-         BuiltHits.push_back(CombineHits(DHitVec.at(0), EHitVec.at(1)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(0), EHitVec.at(1)))));
          // BuiltHits.back().Print();
-         BuiltHits.push_back(EHitVec.at(0));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(EHitVec.at(0))));
          // BuiltHits.back().Print();
       }
    } else if(DHitVec.size() == 2 && EHitVec.size() == 2) {
@@ -431,14 +431,14 @@ void TCSM::MakedEE(std::vector<TDetectorHit*>& DHitVec, std::vector<TDetectorHit
       double et2 = static_cast<TCSMHit*>(EHitVec.at(1))->GetEPosition().Theta();
 
       if(std::abs(dt1 - et1) + std::abs(dt2 - et2) <= std::abs(dt1 - et2) + std::abs(dt2 - et1)) {
-         BuiltHits.push_back(CombineHits(DHitVec.at(0), EHitVec.at(0)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(0), EHitVec.at(0)))));
          // BuiltHits.back().Print();
-         BuiltHits.push_back(CombineHits(DHitVec.at(1), EHitVec.at(1)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(1), EHitVec.at(1)))));
          // BuiltHits.back().Print();
       } else {
-         BuiltHits.push_back(CombineHits(DHitVec.at(0), EHitVec.at(1)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(0), EHitVec.at(1)))));
          // BuiltHits.back().Print();
-         BuiltHits.push_back(CombineHits(DHitVec.at(1), EHitVec.at(0)));
+         BuiltHits.push_back(std::make_shared<TCSMHit>(*static_cast<TCSMHit*>(CombineHits(DHitVec.at(1), EHitVec.at(0)))));
          // BuiltHits.back().Print();
       }
    } else {

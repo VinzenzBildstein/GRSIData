@@ -145,10 +145,10 @@ Int_t TTigress::GetAddbackMultiplicity()
    for(i = 1; i < fHits.size(); i++) {
       // check for each existing addback hit if this tigress hit should be added
       for(j = 0; j < fAddbackHits.size(); j++) {
-         if(fAddbackCriterion(fAddbackHits[j], fHits[i])) {
+         if(fAddbackCriterion(fAddbackHits[j].get(), fHits[i].get())) {
             // SumHit preserves time and position from first (highest E) hit, but adds segments so this hit becomes
             // LastPosition()
-            static_cast<TTigressHit*>(fAddbackHits[j])->SumHit(static_cast<TTigressHit*>(fHits[i])); // Adds
+				std::static_pointer_cast<TTigressHit>(fAddbackHits[j])->SumHit(static_cast<TTigressHit*>(fHits[i].get())); // Adds
             fAddbackFrags[j]++;
             break;
          }
@@ -156,7 +156,7 @@ Int_t TTigress::GetAddbackMultiplicity()
       // if hit[i] was not added to a higher energy hit, create its own addback hit
       if(j == fAddbackHits.size()) {
          fAddbackHits.push_back(fHits[i]);
-         static_cast<TTigressHit*>(fAddbackHits.back())->SumHit(static_cast<TTigressHit*>(fAddbackHits.back())); // Does nothing // then why are we doing this?
+			std::static_pointer_cast<TTigressHit>(fAddbackHits.back())->SumHit(static_cast<TTigressHit*>(fAddbackHits.back().get())); // Does nothing // then why are we doing this?
          fAddbackFrags.push_back(1);
       }
    }
@@ -170,7 +170,7 @@ TTigressHit* TTigress::GetAddbackHit(const int& i)
    /// Get the ith addback hit. This function calls GetAddbackMultiplicity to check the range of the index.
    /// This automatically calculates all addback hits if they haven't been calculated before.
    if(i < GetAddbackMultiplicity()) {
-      return static_cast<TTigressHit*>(fAddbackHits.at(i));
+      return static_cast<TTigressHit*>(fAddbackHits.at(i).get());
    }
    std::cerr<<"Addback hits are out of range"<<std::endl;
    throw grsi::exit_exception(1);
@@ -181,12 +181,12 @@ void TTigress::BuildHits()
 {
 	// remove all hits of segments only
 	// remove_if moves all elements to be removed to the end and returns an iterator to the first one to be removed
-	auto remove = std::remove_if(fHits.begin(), fHits.end(), [](TDetectorHit* h) -> bool { return !(static_cast<TTigressHit*>(h)->CoreSet());});
+	auto remove = std::remove_if(fHits.begin(), fHits.end(), [](std::shared_ptr<TDetectorHit>(h)) -> bool { return !(std::static_pointer_cast<TTigressHit>(h)->CoreSet());});
 	// using remove_if the elements to be removed are left in an undefined state so we can only log how many we are removing!
 	TSortingDiagnostics::Get()->RemovedHits(IsA(), std::distance(remove, fHits.end()), fHits.size());
 	fHits.erase(remove, fHits.end());
 	for(auto hit : fHits) {
-		auto tigressHit = static_cast<TTigressHit*>(hit);
+		auto tigressHit = static_cast<TTigressHit*>(hit.get());
       if(tigressHit->GetNSegments() > 1) {
          tigressHit->SortSegments();
       }
@@ -203,12 +203,12 @@ void TTigress::BuildHits()
    for(auto fTigressHit : fHits) {
       bool suppressed = false;
       for(auto& fBgo : fBgos) {
-         if(fSuppressionCriterion(fTigressHit, fBgo)) {
+         if(fSuppressionCriterion(fTigressHit.get(), fBgo)) {
             suppressed = true;
             break;
          }
       }
-      static_cast<TTigressHit*>(fTigressHit)->SetBGOFired(suppressed);
+		std::static_pointer_cast<TTigressHit>(fTigressHit)->SetBGOFired(suppressed);
    }
 }
 
@@ -253,7 +253,7 @@ void TTigress::AddFragment(const std::shared_ptr<const TFragment>& frag, TChanne
 		if(TestGlobalBit(ETigressGlobalBits::kSetCoreWave)) {
 			frag->CopyWave(*corehit);
 		}
-		fHits.push_back(corehit);
+		fHits.push_back(std::make_shared<TTigressHit>(*corehit));
 		return;
 	}
 	if(chan->GetMnemonic()->SubSystem() == TMnemonic::EMnemonic::kG) { // its ge but its not a core...
@@ -275,7 +275,7 @@ void TTigress::AddFragment(const std::shared_ptr<const TFragment>& frag, TChanne
 			frag->CopyWave(temp);
 		}
 		corehit->AddSegment(temp);
-		fHits.push_back(corehit);
+		fHits.push_back(std::make_shared<TTigressHit>(*corehit));
 		return;
 	}
 	if(chan->GetMnemonic()->SubSystem() == TMnemonic::EMnemonic::kS) {

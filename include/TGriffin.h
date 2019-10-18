@@ -133,8 +133,8 @@ private:
    static std::function<bool(const TDetectorHit*, const TDetectorHit*)> fSuppressionCriterion;
 #endif
 
-	std::vector<TDetectorHit*>& fGriffinLowGainHits = fHits; //!<! Reference to default hit vector (needs to be transient)
-   std::vector<TDetectorHit*>  fGriffinHighGainHits; //  The set of crystal hits
+	std::vector<std::shared_ptr<TDetectorHit> >& fGriffinLowGainHits = fHits; //!<! Reference to default hit vector (needs to be transient)
+   std::vector<std::shared_ptr<TDetectorHit> >  fGriffinHighGainHits; //  The set of crystal hits
 
    // static bool fSetBGOHits;                //!<!  Flag that determines if BGOHits are being measured
 
@@ -144,16 +144,16 @@ private:
    long                            fCycleStart; //!<!  The start of the cycle
    mutable TTransientBits<UChar_t> fGriffinBits;  // Transient member flags
 
-   mutable std::vector<TDetectorHit*> fAddbackLowGainHits;  //!<! Used to create addback hits on the fly
-   mutable std::vector<TDetectorHit*> fAddbackHighGainHits; //!<! Used to create addback hits on the fly
+   mutable std::vector<std::shared_ptr<TDetectorHit> > fAddbackLowGainHits;  //!<! Used to create addback hits on the fly
+   mutable std::vector<std::shared_ptr<TDetectorHit> > fAddbackHighGainHits; //!<! Used to create addback hits on the fly
    mutable std::vector<UShort_t> fAddbackLowGainFrags;  //!<! Number of crystals involved in creating in the addback hit
    mutable std::vector<UShort_t> fAddbackHighGainFrags; //!<! Number of crystals involved in creating in the addback hit
 
-   std::vector<TDetectorHit*> fSuppressedLowGainHits;  //!<!  The set of suppressed crystal hits
-   std::vector<TDetectorHit*> fSuppressedHighGainHits; //!<!  The set of suppressed crystal hits
+   std::vector<std::shared_ptr<TDetectorHit> > fSuppressedLowGainHits;  //!<!  The set of suppressed crystal hits
+   std::vector<std::shared_ptr<TDetectorHit> > fSuppressedHighGainHits; //!<!  The set of suppressed crystal hits
 
-   mutable std::vector<TDetectorHit*> fSuppressedAddbackLowGainHits;  //!<! Used to create suppressed addback hits on the fly
-   mutable std::vector<TDetectorHit*> fSuppressedAddbackHighGainHits; //!<! Used to create suppressed addback hits on the fly
+   mutable std::vector<std::shared_ptr<TDetectorHit> > fSuppressedAddbackLowGainHits;  //!<! Used to create suppressed addback hits on the fly
+   mutable std::vector<std::shared_ptr<TDetectorHit> > fSuppressedAddbackHighGainHits; //!<! Used to create suppressed addback hits on the fly
    mutable std::vector<UShort_t> fSuppressedAddbackLowGainFrags;  //!<! Number of crystals involved in creating in the suppressed addback hit
    mutable std::vector<UShort_t> fSuppressedAddbackHighGainFrags; //!<! Number of crystals involved in creating in the suppressed addback hit
 
@@ -180,10 +180,10 @@ public:
 
 private:
    // This is where the general untouchable functions live.
-   const std::vector<TDetectorHit*>& GetHitVector() const override { return GetHitVector(fDefaultGainType); }      //!<!
-   std::vector<TDetectorHit*>& GetHitVector(const EGainBits& gain_type);      //!<!
-   const std::vector<TDetectorHit*>& GetHitVector(const EGainBits& gain_type) const;      //!<!
-   std::vector<TDetectorHit*>& GetAddbackVector(const EGainBits& gain_type);  //!<!
+   const std::vector<std::shared_ptr<TDetectorHit> >& GetHitVector() const override { return GetHitVector(fDefaultGainType); }      //!<!
+   std::vector<std::shared_ptr<TDetectorHit> >& GetHitVector(const EGainBits& gain_type);      //!<!
+   const std::vector<std::shared_ptr<TDetectorHit> >& GetHitVector(const EGainBits& gain_type) const;      //!<!
+   std::vector<std::shared_ptr<TDetectorHit> >& GetAddbackVector(const EGainBits& gain_type);  //!<!
    std::vector<UShort_t>& GetAddbackFragVector(const EGainBits& gain_type); //!<!
    TGriffinHit* GetGriffinHit(const Int_t& i, const EGainBits& gain_type);  //!<!
    Short_t GetMultiplicity(const EGainBits& gain_type) const;
@@ -193,8 +193,8 @@ private:
    void ResetAddback(const EGainBits& gain_type); //!<!
    UShort_t GetNAddbackFrags(const size_t& idx, const EGainBits& gain_type);
 
-   std::vector<TDetectorHit*>& GetSuppressedVector(const EGainBits& gain_type);      //!<!
-   std::vector<TDetectorHit*>& GetSuppressedAddbackVector(const EGainBits& gain_type);  //!<!
+   std::vector<std::shared_ptr<TDetectorHit> >& GetSuppressedVector(const EGainBits& gain_type);      //!<!
+   std::vector<std::shared_ptr<TDetectorHit> >& GetSuppressedAddbackVector(const EGainBits& gain_type);  //!<!
    std::vector<UShort_t>& GetSuppressedAddbackFragVector(const EGainBits& gain_type); //!<!
    TGriffinHit* GetSuppressedHit(const Int_t& i, const EGainBits& gain_type);  //!<!
    Short_t GetSuppressedMultiplicity(const TBgo* bgo, const EGainBits& gain_type);
@@ -215,7 +215,7 @@ public:
    void Print(Option_t* opt = "") const override; //!<!
 
    /// \cond CLASSIMP
-   ClassDefOverride(TGriffin, 5) // Griffin Physics structure
+   ClassDefOverride(TGriffin, 6) // Griffin Physics structure
    /// \endcond
 };
 /*! @} */

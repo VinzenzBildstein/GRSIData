@@ -120,7 +120,7 @@ Short_t TLaBr::GetSuppressedMultiplicity(const TBgo* bgo)
 TLaBrHit* TLaBr::GetSuppressedHit(const int& i)
 {
 	try {
-		return static_cast<TLaBrHit*>(fSuppressedHits.at(i));
+		return static_cast<TLaBrHit*>(fSuppressedHits.at(i).get());
 	} catch(const std::out_of_range& oor) {
 		std::cerr<<ClassName()<<" is out of range: "<<oor.what()<<std::endl;
       throw grsi::exit_exception(1);
@@ -130,6 +130,5 @@ TLaBrHit* TLaBr::GetSuppressedHit(const int& i)
 
 void TLaBr::AddFragment(const std::shared_ptr<const TFragment>& frag, TChannel*)
 {
-	TLaBrHit* laHit = new TLaBrHit(*frag);                 // Building is controlled in the constructor of the hit
-	fHits.push_back(std::move(laHit)); // use std::move for efficienciy since laHit loses scope here anyway
+	fHits.push_back(std::make_shared<TLaBrHit>(*frag));
 }

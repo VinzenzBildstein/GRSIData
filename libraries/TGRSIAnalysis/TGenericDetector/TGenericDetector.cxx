@@ -37,8 +37,7 @@ void TGenericDetector::AddFragment(const std::shared_ptr<const TFragment>& frag,
       return;
    }
 
-   TGRSIDetectorHit* dethit = new TGRSIDetectorHit(*frag);
-   fHits.push_back(std::move(dethit));
+   fHits.push_back(std::make_shared<TGRSIDetectorHit>(*frag));
 }
 
 void TGenericDetector::Print(Option_t*) const

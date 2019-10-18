@@ -45,10 +45,6 @@ public:
       kVectorsBuilt = BIT(6) // 110 or 145
    };
 
-#ifndef __CINT__
-   std::vector<std::vector<std::shared_ptr<const TFragment>>> SegmentFragments;
-#endif
-
    TTigress();
    TTigress(const TTigress&);
    ~TTigress() override;
@@ -130,7 +126,7 @@ private:
    static void SetGlobalBit(ETigressGlobalBits bit, Bool_t set = true) { fgTigressBits.SetBit(bit, set); }
    static Bool_t TestGlobalBit(ETigressGlobalBits bit) { return (fgTigressBits.TestBit(bit)); }
 
-   std::vector<TDetectorHit*> fAddbackHits;  //!<! Used to create addback hits on the fly
+   std::vector<std::shared_ptr<TDetectorHit>> fAddbackHits;  //!<! Used to create addback hits on the fly
    std::vector<UShort_t>      fAddbackFrags; //!<! Number of crystals involved in creating in the addback hit
 
    static void BuildVectors();  //!<!
@@ -197,7 +193,7 @@ public:
    void Copy(TObject&) const override;            //!<!
 
    /// \cond CLASSIMP
-   ClassDefOverride(TTigress, 7) // Tigress Physics structure
+   ClassDefOverride(TTigress, 8) // Tigress Physics structure
    /// \endcond
 };
 

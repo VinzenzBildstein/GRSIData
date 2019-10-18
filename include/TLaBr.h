@@ -74,7 +74,7 @@ private:
 #if !defined(__CINT__) && !defined(__CLING__)
    static std::function<bool(const TDetectorHit*, const TDetectorHit*)> fSuppressionCriterion;
 #endif
-   std::vector<TDetectorHit*> fSuppressedHits; //   The set of suppressed LaBr hits
+   std::vector<std::shared_ptr<TDetectorHit>> fSuppressedHits; //   The set of suppressed LaBr hits
 
    static TVector3 gPosition[9]; //!<!  Position of each detectir
 
@@ -89,7 +89,7 @@ public:
    void Print(Option_t* opt = "") const override; //!<!
 
    /// \cond CLASSIMP
-   ClassDefOverride(TLaBr, 1) // LaBr Physics structure
+   ClassDefOverride(TLaBr, 2) // LaBr Physics structure
 	/// \endcond
 };
 /*! @} */

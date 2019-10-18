@@ -56,9 +56,9 @@ private:
    static int fCfdBuildDiff; //!<! largest acceptable time difference between events (clock ticks)  (50 ns)
 
    void BuildVH(std::vector<std::vector<std::pair<TFragment, TGRSIMnemonic>>>&, std::vector<TDetectorHit*>&);
-   void BuilddEE(std::vector<std::vector<TDetectorHit*>>&, std::vector<TDetectorHit*>&);
+   void BuilddEE(std::vector<std::vector<TDetectorHit*>>&, std::vector<std::shared_ptr<TDetectorHit>>&);
    void OldBuilddEE(std::vector<TDetectorHit*>&, std::vector<TDetectorHit*>&, std::vector<TDetectorHit*>&);
-   void MakedEE(std::vector<TDetectorHit*>& DHitVec, std::vector<TDetectorHit*>& EHitVec, std::vector<TDetectorHit*>& BuiltHits);
+   void MakedEE(std::vector<TDetectorHit*>& DHitVec, std::vector<TDetectorHit*>& EHitVec, std::vector<std::shared_ptr<TDetectorHit>>& BuiltHits);
    TCSMHit* MakeHit(std::pair<TFragment, TGRSIMnemonic>&, std::pair<TFragment, TGRSIMnemonic>&);
    TCSMHit* MakeHit(std::vector<std::pair<TFragment, TGRSIMnemonic>>&, std::vector<std::pair<TFragment, TGRSIMnemonic>>&);
    TCSMHit* CombineHits(TDetectorHit*, TDetectorHit*);

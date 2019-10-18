@@ -57,7 +57,7 @@ public:
    void UseFitCharge()
    {
       for(auto& fSiLiHit : fHits) {
-         static_cast<TSiLiHit*>(fSiLiHit)->UseFitCharge();
+			std::static_pointer_cast<TSiLiHit>(fSiLiHit)->UseFitCharge();
       }
    }
    
@@ -112,7 +112,7 @@ public:
    static double BaseFreq;     //!<!
 	
 private:
-   std::vector<TSiLiHit> fAddbackHits;     //!<!
+   std::vector<std::shared_ptr<TSiLiHit>> fAddbackHits;     //!<!
    std::vector<unsigned int> fRejectHits;     //!<!
 
    TTransientBits<UChar_t> fSiLiBits;
@@ -132,7 +132,7 @@ public:
    static bool  fRejectPossibleCrosstalk; //!<!
    
    /// \cond CLASSIMP
-   ClassDefOverride(TSiLi, 6);
+   ClassDefOverride(TSiLi, 7);
    /// \endcond
 };
 /*! @} */

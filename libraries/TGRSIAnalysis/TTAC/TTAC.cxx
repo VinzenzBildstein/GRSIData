@@ -44,6 +44,5 @@ void TTAC::Print(Option_t*) const
 
 void TTAC::AddFragment(const std::shared_ptr<const TFragment>& frag, TChannel*)
 {
-	TTACHit* hit = new TTACHit(*frag);
-	fHits.push_back(std::move(hit));
+	fHits.push_back(std::make_shared<TTACHit>(*frag));
 }
