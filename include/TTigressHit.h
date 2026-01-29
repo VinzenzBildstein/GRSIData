@@ -90,8 +90,8 @@ public:
    void SetFilterPattern(const int& x) { fFilter = x; }   //!<!
 
    /////////////////////////  Getters	/////////////////////////////////////
-   Int_t GetFilterPattern() const { return fFilter; }   //!<!
-   Double_t     GetNoCTEnergy(Option_t* opt = "") const;
+   Int_t    GetFilterPattern() const { return fFilter; }   //!<!
+   Double_t GetNoCTEnergy(Option_t* opt = "") const;
 
    /////////////////////////  Recommended Functions/////////////////////////
 
@@ -126,8 +126,8 @@ private:
    void     SetTigressFlag(ETigressHitBits, Bool_t set);
    Double_t GetDefaultDistance() const { return 110.; }
 
-   Int_t                   fFilter{0};                    ///<  The Filter Word
-   TTransientBits<UChar_t> fTigressHitBits;               ///<  Transient Member Flags
+   Int_t                   fFilter{0};        ///<  The Filter Word
+   TTransientBits<UChar_t> fTigressHitBits;   ///<  Transient Member Flags
 
    // copied from old TTigressHit
    std::vector<TDetectorHit> fSegments;

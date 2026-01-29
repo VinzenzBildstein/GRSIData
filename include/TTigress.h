@@ -50,8 +50,8 @@ public:
 
    TTigressHit* GetTigressHit(const int& i);   //!<!
 
-   static TVector3    GetPosition(int DetNbr, int CryNbr, int SegNbr, double dist = 110.0, bool smear = false);   //!<!
-   static TVector3    GetPosition(const TTigressHit* hit, double dist = 110.0, bool smear = false);               //!<!
+   static TVector3 GetPosition(int DetNbr, int CryNbr, int SegNbr, double dist = 110.0, bool smear = false);   //!<!
+   static TVector3 GetPosition(const TTigressHit* hit, double dist = 110.0, bool smear = false);               //!<!
 #ifndef __CINT__
    void AddFragment(const std::shared_ptr<const TFragment>&, TChannel*) override;   //!<!
 #endif
@@ -148,7 +148,7 @@ private:
    static std::array<std::array<std::array<double, 3>, 9>, 17> fGeWhitePositionBack;   //!<!
 
    static TTransientBits<uint8_t>  fGlobalTigressBits;   //!<!
-   mutable TTransientBits<uint8_t> fTigressBits;   // Transient member flags
+   mutable TTransientBits<uint8_t> fTigressBits;         // Transient member flags
 
    mutable std::vector<TDetectorHit*> fAddbackHits;    //!<! Used to create addback hits on the fly
    mutable std::vector<UShort_t>      fAddbackFrags;   //!<! Number of crystals involved in creating in the addback hit
@@ -159,9 +159,9 @@ private:
    mutable std::vector<UShort_t>      fSuppressedAddbackFrags;   //!<! Number of crystals involved in creating in the suppressed addback hit
 
    // This is where the general untouchable functions live.
-   void                            ClearStatus() const { fTigressBits = 0; }   //!<!
-   void                            SetBitNumber(ETigressBits bit, Bool_t set) const;
-   Bool_t                          TestBitNumber(ETigressBits bit) const { return fTigressBits.TestBit(bit); }
+   void          ClearStatus() const { fTigressBits = 0; }   //!<!
+   void          SetBitNumber(ETigressBits bit, Bool_t set) const;
+   Bool_t        TestBitNumber(ETigressBits bit) const { return fTigressBits.TestBit(bit); }
    static void   SetGlobalBit(ETigressGlobalBits bit, Bool_t set = true) { fGlobalTigressBits.SetBit(bit, set); }
    static Bool_t TestGlobalBit(ETigressGlobalBits bit) { return (fGlobalTigressBits.TestBit(bit)); }
 
