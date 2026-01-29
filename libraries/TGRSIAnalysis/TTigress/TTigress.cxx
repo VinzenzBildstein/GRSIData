@@ -305,7 +305,7 @@ void TTigress::AddFragment(const std::shared_ptr<const TFragment>& frag, TChanne
    for(Short_t i = 0; i < GetMultiplicity(); ++i) {
       TTigressHit* hit = GetTigressHit(i);
       if((hit->GetDetector() == chan->GetDetectorNumber()) &&
-            (hit->GetCrystal() == chan->GetCrystalNumber())) {   // we have a match;
+         (hit->GetCrystal() == chan->GetCrystalNumber())) {   // we have a match;
          hit->AddSegment(temp);
          return;
       }

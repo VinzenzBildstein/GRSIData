@@ -36,7 +36,7 @@ void TTigressHit::Copy(TObject& rhs) const
    TDetectorHit::Copy(rhs);
    static_cast<TTigressHit&>(rhs).fFilter = fFilter;
    // We should copy over a 0 and let the hit recalculate, this is safest
-   static_cast<TTigressHit&>(rhs).fTigressHitBits      = 0;
+   static_cast<TTigressHit&>(rhs).fTigressHitBits = 0;
    static_cast<TTigressHit&>(rhs).fTimeFit        = fTimeFit;
    static_cast<TTigressHit&>(rhs).fSegments       = fSegments;
    static_cast<TTigressHit&>(rhs).fCoreSet        = fCoreSet;
@@ -61,13 +61,13 @@ void TTigressHit::Clear(Option_t* opt)
 {
    // Clears the information stored in the TTigressHit.
    TDetectorHit::Clear(opt);   // clears the base (address, position and waveform)
-   fFilter              = 0;
-   fTigressHitBits      = 0;
+   fFilter         = 0;
+   fTigressHitBits = 0;
 
    fTimeFit   = 0.0;
    fSig2Noise = 0.0;
 
-   fCoreSet  = false;
+   fCoreSet = false;
    fSegments.clear();
 }
 
