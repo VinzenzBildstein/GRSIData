@@ -36,11 +36,10 @@ void TTigressHit::Copy(TObject& rhs) const
    TDetectorHit::Copy(rhs);
    static_cast<TTigressHit&>(rhs).fFilter = fFilter;
    // We should copy over a 0 and let the hit recalculate, this is safest
-   static_cast<TTigressHit&>(rhs).fTigressHitBits = 0;
+   static_cast<TTigressHit&>(rhs).fTigressHitBits      = 0;
    static_cast<TTigressHit&>(rhs).fTimeFit        = fTimeFit;
    static_cast<TTigressHit&>(rhs).fSegments       = fSegments;
    static_cast<TTigressHit&>(rhs).fCoreSet        = fCoreSet;
-   static_cast<TTigressHit&>(rhs).fBgoFired       = fBgoFired;
 }
 
 void TTigressHit::Copy(TObject& obj, bool waveform) const
@@ -62,14 +61,13 @@ void TTigressHit::Clear(Option_t* opt)
 {
    // Clears the information stored in the TTigressHit.
    TDetectorHit::Clear(opt);   // clears the base (address, position and waveform)
-   fFilter         = 0;
-   fTigressHitBits = 0;
+   fFilter              = 0;
+   fTigressHitBits      = 0;
 
    fTimeFit   = 0.0;
    fSig2Noise = 0.0;
 
    fCoreSet  = false;
-   fBgoFired = false;
    fSegments.clear();
 }
 
@@ -88,7 +86,6 @@ void TTigressHit::Print(std::ostream& out) const
        << "\tEnergy:    " << GetEnergy() << std::endl
        << "\tTime:      " << GetTime() << std::endl
        << "\tCore set:  " << (CoreSet() ? "true" : "false") << std::endl
-       << "\tBGO Fired: " << (BGOFired() ? "true" : "false") << std::endl
        << "\tTime:      " << GetTimeStamp() << std::endl
        << "\thit contains " << GetNSegments() << " segments:" << std::endl;
    str << "Name           Charge" << std::endl;
@@ -143,9 +140,9 @@ void TTigressHit::Add(const TDetectorHit* hit)
 
    const auto* tigressHit = dynamic_cast<const TTigressHit*>(hit);
    if(tigressHit == nullptr) {
-      throw std::runtime_error("trying to add non-griffin hit to griffin hit!");
+      throw std::runtime_error("trying to add non-tigress hit to tigress hit!");
    }
-   // add another griffin hit to this one (for addback),
+   // add another tigress hit to this one (for addback),
    // using the time and position information of the one with the higher energy
    if(!CompareEnergy(this, tigressHit)) {
       SetCfd(tigressHit->GetCfd());
@@ -168,7 +165,7 @@ void TTigressHit::Add(const TDetectorHit* hit)
    } else {
       SetPUHit(3);
    }
-   // KValue is somewhat meaningless in addback, so I am using it as an indicator that a piledup griffinHit was added-back RD
+   // KValue is somewhate meaningless in addback, so I am using it as an indicator that a piledup tigressHit was added-back RD
    if(GetKValue() > tigressHit->GetKValue()) {
       SetKValue(tigressHit->GetKValue());
    }

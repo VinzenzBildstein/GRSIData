@@ -38,19 +38,6 @@ public:
 
    void CopyFragment(const TFragment&);
 
-private:
-   Int_t                   fFilter{0};        ///<  The Filter Word
-   TTransientBits<UChar_t> fTigressHitBits;   ///<  Transient Member Flags
-
-   // copied from old TTigressHit
-   std::vector<TDetectorHit> fSegments;
-
-   bool    fCoreSet{false};
-   bool    fBgoFired{false};
-   Float_t fTimeFit{0.};
-   Float_t fSig2Noise{0.};
-
-public:
    // copied from old TTigressHit
    void SetCore(const TTigressHit& core)
    {
@@ -76,10 +63,6 @@ public:
 
    bool CoreSet() const { return fCoreSet; }
    void CoreSet(bool val) { fCoreSet = val; }
-   bool BGOFired() const { return fBgoFired; }
-   void SetBGOFired(bool fired) { fBgoFired = fired; }
-
-   int GetTimeToTrigger() { return (GetTimeStamp() & 0x7fffff) - (static_cast<Int_t>(GetCfd()) >> 4); }
 
    int GetSegmentMultiplicity() const { return fSegments.size(); }   //!<!
    int GetNSegments() const { return fSegments.size(); }             //!<!
@@ -107,8 +90,8 @@ public:
    void SetFilterPattern(const int& x) { fFilter = x; }   //!<!
 
    /////////////////////////  Getters	/////////////////////////////////////
-   Int_t    GetFilterPattern() const { return fFilter; }   //!<!
-   Double_t GetNoCTEnergy(Option_t* opt = "") const;
+   Int_t GetFilterPattern() const { return fFilter; }   //!<!
+   Double_t     GetNoCTEnergy(Option_t* opt = "") const;
 
    /////////////////////////  Recommended Functions/////////////////////////
 
@@ -143,8 +126,18 @@ private:
    void     SetTigressFlag(ETigressHitBits, Bool_t set);
    Double_t GetDefaultDistance() const { return 110.; }
 
+   Int_t                   fFilter{0};                    ///<  The Filter Word
+   TTransientBits<UChar_t> fTigressHitBits;               ///<  Transient Member Flags
+
+   // copied from old TTigressHit
+   std::vector<TDetectorHit> fSegments;
+
+   bool    fCoreSet{false};
+   Float_t fTimeFit{0.};
+   Float_t fSig2Noise{0.};
+
    /// \cond CLASSIMP
-   ClassDefOverride(TTigressHit, 8);   // Information about a GRIFFIN Hit // NOLINT(readability-else-after-return)
+   ClassDefOverride(TTigressHit, 5);   // Information about a TIGRESS Hit // NOLINT(readability-else-after-return)
    /// \endcond
 };
 /*! @} */

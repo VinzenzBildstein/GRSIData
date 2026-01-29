@@ -35,7 +35,7 @@ public:
    UShort_t GetArrayNumber() const override { return (20 * (GetDetector() - 1) + 5 * GetCrystal() + GetSegment()); }   //!<!
 
    /// \cond CLASSIMP
-   ClassDefOverride(TTigressBgoHit, 2)   // NOLINT(readability-else-after-return)
+   ClassDefOverride(TTigressBgoHit, 1)   // NOLINT(readability-else-after-return)
    /// \endcond
 };
 /*! @} */

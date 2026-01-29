@@ -294,31 +294,27 @@ void TTigress::AddFragment(const std::shared_ptr<const TFragment>& frag, TChanne
       }
       AddHit(hit);
       return;
-   } else {
-      // create a temporary segment hit (with waveform if requested)
-      TDetectorHit temp(*frag);
-      if(TestGlobalBit(ETigressGlobalBits::kSetSegWave)) {
-         frag->CopyWave(temp);
-      }
-      // check if the crystal this segment belongs to already exists
-      for(Short_t i = 0; i < GetMultiplicity(); ++i) {
-         TTigressHit* hit = GetTigressHit(i);
-         if((hit->GetDetector() == chan->GetDetectorNumber()) &&
-            (hit->GetCrystal() == chan->GetCrystalNumber())) {   // we have a match;
-            hit->AddSegment(temp);
-            return;
-         }
-      }
-      // haven't found matching crystal, so we create a new core hit with a fake address
-      auto* corehit = new TTigressHit;
-      corehit->SetAddress(frag->GetAddress());   // fake it till you make it
-      corehit->AddSegment(temp);
-      AddHit(corehit);
-      return;
    }
 
-   std::cout << ALERTTEXT << "failed to build!" << RESET_COLOR << std::endl;
-   frag->Print();
+   // create a temporary segment hit (with waveform if requested)
+   TDetectorHit temp(*frag);
+   if(TestGlobalBit(ETigressGlobalBits::kSetSegWave)) {
+      frag->CopyWave(temp);
+   }
+   // check if the crystal this segment belongs to already exists
+   for(Short_t i = 0; i < GetMultiplicity(); ++i) {
+      TTigressHit* hit = GetTigressHit(i);
+      if((hit->GetDetector() == chan->GetDetectorNumber()) &&
+            (hit->GetCrystal() == chan->GetCrystalNumber())) {   // we have a match;
+         hit->AddSegment(temp);
+         return;
+      }
+   }
+   // haven't found matching crystal, so we create a new core hit with a fake address
+   auto* corehit = new TTigressHit;
+   corehit->SetAddress(frag->GetAddress());   // fake it till you make it
+   corehit->AddSegment(temp);
+   AddHit(corehit);
 }
 
 void TTigress::ResetFlags() const
@@ -410,17 +406,6 @@ void TTigress::FixCrossTalk()
       }
    }
    SetCrossTalk(true);
-}
-
-const char* TTigress::GetColorFromNumber(int number)
-{
-   switch(number) {
-   case(0): return "B";
-   case(1): return "G";
-   case(2): return "R";
-   case(3): return "W";
-   };
-   return "X";
 }
 
 bool TTigress::IsSuppressed() const

@@ -10,8 +10,10 @@
 #include <cstdio>
 #include <functional>
 
+#include "TBits.h"
 #include "TVector3.h"
 
+#include "Globals.h"
 #include "TTigressHit.h"
 #include "TSuppressed.h"
 #include "TTransientBits.h"
@@ -50,7 +52,6 @@ public:
 
    static TVector3    GetPosition(int DetNbr, int CryNbr, int SegNbr, double dist = 110.0, bool smear = false);   //!<!
    static TVector3    GetPosition(const TTigressHit* hit, double dist = 110.0, bool smear = false);               //!<!
-   static const char* GetColorFromNumber(int number);
 #ifndef __CINT__
    void AddFragment(const std::shared_ptr<const TFragment>&, TChannel*) override;   //!<!
 #endif
@@ -116,13 +117,10 @@ public:
       BuildVectors();
    }
 
-   static double GetFaceDistance()
-   {
-      if(TestGlobalBit(ETigressGlobalBits::kArrayBackPos)) {
-         return 145;
-      }
-      return 110;
-   }
+   void Copy(TObject&) const override;              //!<!
+   void Clear(Option_t* opt = "all") override;      //!<!
+   void Print(Option_t* opt = "") const override;   //!<!
+   void Print(std::ostream& out) const override;    //!<!
 
 private:
 #if !defined(__CINT__) && !defined(__CLING__)
@@ -150,7 +148,7 @@ private:
    static std::array<std::array<std::array<double, 3>, 9>, 17> fGeWhitePositionBack;   //!<!
 
    static TTransientBits<uint8_t>  fGlobalTigressBits;   //!<!
-   mutable TTransientBits<uint8_t> fTigressBits;         // Transient member flags
+   mutable TTransientBits<uint8_t> fTigressBits;   // Transient member flags
 
    mutable std::vector<TDetectorHit*> fAddbackHits;    //!<! Used to create addback hits on the fly
    mutable std::vector<UShort_t>      fAddbackFrags;   //!<! Number of crystals involved in creating in the addback hit
@@ -161,9 +159,9 @@ private:
    mutable std::vector<UShort_t>      fSuppressedAddbackFrags;   //!<! Number of crystals involved in creating in the suppressed addback hit
 
    // This is where the general untouchable functions live.
-   void          ClearStatus() const { fTigressBits = 0; }   //!<!
-   void          SetBitNumber(ETigressBits bit, Bool_t set) const;
-   Bool_t        TestBitNumber(ETigressBits bit) const { return fTigressBits.TestBit(bit); }
+   void                            ClearStatus() const { fTigressBits = 0; }   //!<!
+   void                            SetBitNumber(ETigressBits bit, Bool_t set) const;
+   Bool_t                          TestBitNumber(ETigressBits bit) const { return fTigressBits.TestBit(bit); }
    static void   SetGlobalBit(ETigressGlobalBits bit, Bool_t set = true) { fGlobalTigressBits.SetBit(bit, set); }
    static Bool_t TestGlobalBit(ETigressGlobalBits bit) { return (fGlobalTigressBits.TestBit(bit)); }
 
@@ -175,14 +173,8 @@ private:
 
    static void BuildVectors();
 
-public:
-   void Copy(TObject&) const override;              //!<!
-   void Clear(Option_t* opt = "all") override;      //!<!
-   void Print(Option_t* opt = "") const override;   //!<!
-   void Print(std::ostream& out) const override;    //!<!
-
    /// \cond CLASSIMP
-   ClassDefOverride(TTigress, 7)   // Tigress Physics structure // NOLINT(readability-else-after-return)
+   ClassDefOverride(TTigress, 8)   // Tigress Physics structure // NOLINT(readability-else-after-return)
    /// \endcond
 };
 /*! @} */
